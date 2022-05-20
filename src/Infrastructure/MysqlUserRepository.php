@@ -3,6 +3,8 @@
 
     namespace TechnicalTest\Infrastructure;
 
+    use TechnicalTest\Domain\Exception\UserNotFound;
+    use TechnicalTest\Domain\Exception\UserNotSave;
     use TechnicalTest\Domain\User;
 
     final class MysqlUserRepository
@@ -35,15 +37,15 @@
 
         public function save(User $user): void
         {
-            $insert = sprintf(self::QUERY_CREATE, $user->getId(), $user->getName(), $user->getPhone());
-            $update = sprintf(self::QUERY_SAVE,  $user->getName(), $user->getPhone(),$user->getId());
+            $insert = sprintf(self::QUERY_CREATE, $user->uuid(), $user->name(), $user->phone());
+            $update = sprintf(self::QUERY_SAVE,  $user->name(), $user->phone(),$user->uuid());
             try {
-                $this->find($user->getId());
+                $this->find($user->uuid());
                 $this->connection->update($update);
             } catch(UserNotFound $e) {
                 $this->connection->insert($insert);
             } catch(\Exception $e) {
-                throw new UserNotSave($user->getId());
+                throw new UserNotSave($user->uuid());
             }
         }
 
