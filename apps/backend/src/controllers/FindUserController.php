@@ -6,16 +6,24 @@
     use DomainException;
     use Psr\Http\Message\ResponseInterface as Response;
     use Psr\Http\Message\ServerRequestInterface as Request;
+    use TechnicalTest\Infrastructure\MysqlUserRepository;
     use TechnicalTest\User\User;
 
     final class FindUserController
     {
+        private MysqlUserRepository $repository;
+
+        public function __construct()
+        {
+            $this->repository = new MysqlUserRepository();
+        }
+
         public function id(Request $request, Response $response, array $args): Response
         {
             try {
-                $user = User::find($args['id']);
+                $user = $this->repository->find($args['id']);
                 $dataResponse = json_encode(
-                    ['id' => $user->getId(), 'name' => $user->getName(), 'phone' => $user->getPhone()],
+                    ['id' => $user->uuid(), 'name' => $user->name(), 'phone' => $user->phone()],
                     JSON_THROW_ON_ERROR,
                     512
                 );
