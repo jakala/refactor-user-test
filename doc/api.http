@@ -1,0 +1,13 @@
+PUT http://localhost:8000/users/9cec71c0-3906-45cc-b8a0-1bd50621c4d5
+Content-Type: application/json; charset=UTF-8
+
+{
+  "name": "Pedro",
+  "phone": "607112235"
+}
+
+###
+
+GET http://localhost:8000/users/9cec71c0-3906-45cc-b8a0-1bd50621c4d5
+
+###

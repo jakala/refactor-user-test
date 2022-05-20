@@ -1,0 +1,31 @@
+version: '3.5'
+
+services:
+  php-apache:
+    image: diazdavid/dev-apache-php-7.4.3:latest
+    container_name: php-technical-test
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html
+    environment:
+      APACHE_DOCUMENT_ROOT: /var/www/html/apps/backend/public
+      XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=9013 remote_enable=1
+    networks:
+      - technical-test
+
+  mariadb:
+    image: mariadb:10.5
+    container_name: mariadb-technical-test
+    ports:
+      - "3366:3306"
+    volumes:
+      - ./docker/mariadb:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: "admin"
+    networks:
+      - technical-test
+
+networks:
+  technical-test:
+    name: technical-test

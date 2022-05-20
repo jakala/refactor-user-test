@@ -1,0 +1,97 @@
+swagger: '2.0'
+info:
+  description: "Technical Test Doc"
+  version: "1.0.0"
+  title: "doc empresa.com"
+  contact:
+    email: "info@empresa.com"
+host: "localhost:8000"
+tags:
+  - name: "Users"
+    description: ""
+schemes:
+  - "http"
+paths:
+  /users/{userId}:
+    get:
+      tags:
+        - "Users"
+      summary: "Find user by ID"
+      description: ""
+      produces:
+        - "application/json"
+      parameters:
+        - name: "userId"
+          in: "path"
+          description: "ID of user"
+          required: true
+          type: "string"
+          format: "uuid"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        404:
+          description: "not found"
+        500:
+          description: "Internal Error"
+    put:
+      tags:
+        - "Users"
+      summary: "Create and update user"
+      description: ""
+      consumes:
+        - "application/json"
+      parameters:
+        - name: "userId"
+          in: "path"
+          description: "ID of user"
+          required: true
+          type: "string"
+          format: "uuid"
+        - in: "body"
+          name: "body"
+          description: "Pet object that needs to be added to the store"
+          required: true
+          schema:
+            properties:
+              name:
+                type: "string"
+              phone:
+                type: "string"
+      responses:
+        201:
+          description: "successful operation"
+        500:
+          description: "Internal Error"
+
+
+definitions:
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      name:
+        type: "string"
+      phone:
+        type: "string"
+  
+      
+      
+
+
+      
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          

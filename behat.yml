@@ -1,0 +1,14 @@
+default:
+  autoload:
+    '': '%paths.base%/tests'
+  suites:
+    users:
+      paths: [ tests/applications/backend/features/users ]
+      contexts:
+        - TechnicalTest\Tests\src\Shared\Infrastructure\Behat\FeatureContext:
+            baseUrl: 'http://localhost'
+            dbHost: 'mariadb-technical-test'
+            dbPort: 3306
+            dbUser: 'root'
+            dbPass: 'admin'
+            dbName: 'technical_test'
