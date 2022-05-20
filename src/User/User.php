@@ -25,14 +25,14 @@ class User
             $conn = new mysqli('mariadb-technical-test', 'root', 'admin', 'technical_test');
             $sql = "UPDATE user SET name='$name', phone='$phone' WHERE id='$id'";
             if (!$conn->query($sql)) {
-                throw new DomainException(sprintf('User %s not saved', $id));
+                throw new DomainException(sprintf('User %s not updated', $id));
             }
             $conn->close();
         } catch (DomainException $e) {
             $conn = new mysqli('mariadb-technical-test', 'root', 'admin', 'technical_test');
             $sql = "INSERT INTO user (id, name, phone) VALUES ('$id', '$name', '$phone')";
             if (!$conn->query($sql)) {
-                throw new DomainException(sprintf('User %s not saved', $id));
+                throw new DomainException(sprintf('User %s not created', $id));
             }
             $conn->close();
         }
