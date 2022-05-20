@@ -14,7 +14,17 @@
             return new mysqli('mariadb-technical-test', 'root', 'admin', 'technical_test');
         }
 
-        public static function updateUser(string $name, string $phone, string $id): void
+        public function save(string $id, string $name, string $phone): void
+        {
+            try {
+                $user = $this->find($id);
+                $this->updateUser($user->uuid(), $user->name(), $user->phone());
+            } catch (DomainException $e) {
+                $this->createUser($id, $name, $phone);
+            }
+        }
+
+        private function updateUser(string $name, string $phone, string $id): void
         {
             $conn = self::getConnection();
             $sql = "UPDATE user SET name='$name', phone='$phone' WHERE id='$id'";
@@ -24,7 +34,7 @@
             $conn->close();
         }
 
-        public static function createUser(string $id, string $name, string $phone): void
+        private function createUser(string $id, string $name, string $phone): void
         {
             $conn = self::getConnection();
             $sql = "INSERT INTO user (id, name, phone) VALUES ('$id', '$name', '$phone')";
