@@ -22,25 +22,15 @@ class User
     {
         try {
             self::find($id);
-            $conn = new mysqli('mariadb-technical-test', 'root', 'admin', 'technical_test');
-            $sql = "UPDATE user SET name='$name', phone='$phone' WHERE id='$id'";
-            if (!$conn->query($sql)) {
-                throw new DomainException(sprintf('User %s not updated', $id));
-            }
-            $conn->close();
+            self::updateUser($name, $phone, $id);
         } catch (DomainException $e) {
-            $conn = new mysqli('mariadb-technical-test', 'root', 'admin', 'technical_test');
-            $sql = "INSERT INTO user (id, name, phone) VALUES ('$id', '$name', '$phone')";
-            if (!$conn->query($sql)) {
-                throw new DomainException(sprintf('User %s not created', $id));
-            }
-            $conn->close();
+            self::createUser($id, $name, $phone);
         }
     }
 
     public static function find(string $id): User
     {
-        $conn = new mysqli('mariadb-technical-test', 'root', 'admin', 'technical_test');
+        $conn = self::getConnection();
         $sql = "SELECT * FROM technical_test.user WHERE id = '$id'";
         $result = $conn->query($sql);
         if ($result->num_rows > 0) {
@@ -50,6 +40,46 @@ class User
         }
         $conn->close();
         throw new DomainException(sprintf('User %s not found', $id));
+    }
+
+    /**
+     * @return mysqli
+     */
+    public static function getConnection(): mysqli
+    {
+        return new mysqli('mariadb-technical-test', 'root', 'admin', 'technical_test');
+    }
+
+    /**
+     * @param string $name
+     * @param string $phone
+     * @param string $id
+     * @return array
+     */
+    public static function updateUser(string $name, string $phone, string $id): void
+    {
+        $conn = self::getConnection();
+        $sql = "UPDATE user SET name='$name', phone='$phone' WHERE id='$id'";
+        if (!$conn->query($sql)) {
+            throw new DomainException(sprintf('User %s not updated', $id));
+        }
+        $conn->close();
+    }
+
+    /**
+     * @param string $id
+     * @param string $name
+     * @param string $phone
+     * @return void
+     */
+    public static function createUser(string $id, string $name, string $phone): void
+    {
+        $conn = self::getConnection();
+        $sql = "INSERT INTO user (id, name, phone) VALUES ('$id', '$name', '$phone')";
+        if (!$conn->query($sql)) {
+            throw new DomainException(sprintf('User %s not created', $id));
+        }
+        $conn->close();
     }
 
     public function getId(): string
