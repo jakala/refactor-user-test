@@ -27,7 +27,8 @@ start destroy:
 behat: CMD=vendor/bin/behat
 unit: CMD=vendor/bin/phpunit --configuration phpunit.xml --coverage-html var/coverage
 close-test: CMD=git archive -o technical-test-`date +%Y%m%d%H%M%S`.zip HEAD
-command behat unit close-test:
+cache-clear: CMD=rm -rf var/
+command behat unit close-test cache-clear:
 	docker exec -ti php-technical-test $(CMD)
 
 
