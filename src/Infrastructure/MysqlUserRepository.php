@@ -3,59 +3,63 @@
 
     namespace TechnicalTest\Infrastructure;
 
-    use DomainException;
-    use mysqli;
     use TechnicalTest\Domain\User;
 
     final class MysqlUserRepository
     {
-        public static function getConnection(): mysqli
-        {
-            return new mysqli('mariadb-technical-test', 'root', 'admin', 'technical_test');
-        }
+        protected const QUERY_FIND = "SELECT * FROM technical_test.user WHERE id = '%s'";
+        protected const QUERY_SAVE = "UPDATE user SET name='%s', phone='%s' WHERE id='%s'";
+        protected const QUERY_CREATE = "INSERT INTO user (id, name, phone) VALUES ('%s', '%s', '%s')";
+        protected const QUERY_EMPTY = "DELETE FROM user";
 
-        public function save(string $id, string $name, string $phone): void
-        {
-            try {
-                $user = $this->find($id);
-                $this->updateUser($user->uuid(), $user->name(), $user->phone());
-            } catch (DomainException $e) {
-                $this->createUser($id, $name, $phone);
-            }
-        }
+        private $connection;
 
-        private function updateUser(string $name, string $phone, string $id): void
+        public function __construct()
         {
-            $conn = self::getConnection();
-            $sql = "UPDATE user SET name='$name', phone='$phone' WHERE id='$id'";
-            if (!$conn->query($sql)) {
-                throw new DomainException(sprintf('User %s not updated', $id));
-            }
-            $conn->close();
-        }
-
-        private function createUser(string $id, string $name, string $phone): void
-        {
-            $conn = self::getConnection();
-            $sql = "INSERT INTO user (id, name, phone) VALUES ('$id', '$name', '$phone')";
-            if (!$conn->query($sql)) {
-                throw new DomainException(sprintf('User %s not created', $id));
-            }
-            $conn->close();
+            $this->connection = new MysqlConnection();
         }
 
         public function find(string $id): User
         {
-            $conn = self::getConnection();
-            $sql = "SELECT * FROM technical_test.user WHERE id = '$id'";
-            $result = $conn->query($sql);
-            if ($result->num_rows > 0) {
-                $row = $result->fetch_assoc();
-                $conn->close();
-                return new User($row['id'], $row['name'], $row['phone']);
+            $sql = sprintf(self::QUERY_FIND, $id);
+            try {
+                $result = $this->connection->select($sql);
+                if(empty($result)) {
+                    throw new UserNotFound($id);
+                }
+                return $this->createUser($result);
+            } catch(\Exception $e) {
+                throw new UserNotFound($id);
             }
-            $conn->close();
-            throw new DomainException(sprintf('User %s not found', $id));
         }
 
+        public function save(User $user): void
+        {
+            $insert = sprintf(self::QUERY_CREATE, $user->getId(), $user->getName(), $user->getPhone());
+            $update = sprintf(self::QUERY_SAVE,  $user->getName(), $user->getPhone(),$user->getId());
+            try {
+                $this->find($user->getId());
+                $this->connection->update($update);
+            } catch(UserNotFound $e) {
+                $this->connection->insert($insert);
+            } catch(\Exception $e) {
+                throw new UserNotSave($user->getId());
+            }
+        }
+
+        public function emptyUsers(): void
+        {
+            $empty = self::QUERY_EMPTY;
+            try {
+                $this->connection->delete($empty);
+            } catch(\Exception $e) {
+                throw new \DomainException("cannot empty Users");
+            }
+
+        }
+
+        private function createUser(array $row): User
+        {
+            return new User($row['id'], $row['name'], $row['phone']);
+        }
     }

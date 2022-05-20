@@ -6,8 +6,9 @@
     use DomainException;
     use Psr\Http\Message\ResponseInterface as Response;
     use Psr\Http\Message\ServerRequestInterface as Request;
+    use TechnicalTest\Application\Response\UserFoundResponse;
+    use TechnicalTest\Domain\User;
     use TechnicalTest\Infrastructure\MysqlUserRepository;
-    use TechnicalTest\User\User;
 
     final class FindUserController
     {
@@ -22,18 +23,18 @@
         {
             try {
                 $user = $this->repository->find($args['id']);
-                $dataResponse = json_encode(
-                    ['id' => $user->uuid(), 'name' => $user->name(), 'phone' => $user->phone()],
-                    JSON_THROW_ON_ERROR,
-                    512
-                );
-                $response->getBody()->write($dataResponse);
-                return $response
-                    ->withHeader('Content-Type', 'application/json')
-                    ->withStatus(200);
+                return $this->createResponse($user, $response);
             } catch (DomainException $e) {
                 return $response->withStatus(404);
             }
         }
 
+        private function createResponse(User $user, Response $response): Response
+        {
+            $dataResponse = (new UserFoundResponse($user))->jsonSerialize();
+            $response->getBody()->write($dataResponse);
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(200);
+        }
     }

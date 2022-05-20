@@ -24,7 +24,7 @@ start destroy:
 	docker-compose $(CMD)
 
 
-behat: CMD=vendor/bin/behat
+behat: CMD=vendor/bin/behat -f progress
 unit: CMD=vendor/bin/phpunit --configuration phpunit.xml --coverage-html var/coverage
 close-test: CMD=git archive -o technical-test-`date +%Y%m%d%H%M%S`.zip HEAD
 cache-clear: CMD=rm -rf var/
